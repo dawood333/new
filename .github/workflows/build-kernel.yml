@@ -11,7 +11,7 @@ on:
       enable_feature_susfs:
         description: "是否启用susfs"
         required: false
-        default: false
+        default: true
         type: boolean
 
 jobs:
