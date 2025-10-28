@@ -1,55 +1,35 @@
-From ecc2e6f97d72db5d7c89784d83489fe3a6825aca Mon Sep 17 00:00:00 2001
+From fe1df5edd00384c9cc508082aab54c07d946468b Mon Sep 17 00:00:00 2001
 From: MerCuJerry <mercujerry@gmail.com>
-Date: Tue, 28 Oct 2025 20:32:07 +0800
-Subject: [PATCH] patch: fix patch
+Date: Tue, 28 Oct 2025 23:43:18 +0800
+Subject: [PATCH] fix build error
 
 ---
- fs/namespace.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ fs/namespace.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
 diff --git a/fs/namespace.c b/fs/namespace.c
-index b77e88294..60be65005 100644
+index 9586a5fcc..b1883dbc9 100644
 --- a/fs/namespace.c
 +++ b/fs/namespace.c
-@@ -3345,13 +3345,13 @@ struct mnt_namespace *copy_mnt_ns(unsigned long flags, struct mnt_namespace *ns,
- 	 */
- 	p = old;
- 	q = new;
--	while (p) {
- #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
--	if (likely(is_zygote_pid)) {
--		last_entry_mnt_id = new->mnt_id;
--		q->mnt.susfs_mnt_id_backup = new->mnt_id;
--	}
-+    if (likely(is_zygote_pid)) {
-+        last_entry_mnt_id = new->mnt_id;
-+        q->mnt.susfs_mnt_id_backup = new->mnt_id;
-+    }
- #endif
-+	while (p) {
- 		q->mnt_ns = new_ns;
- 		new_ns->mounts++;
- 		if (new_fs) {
-@@ -3368,9 +3368,6 @@ struct mnt_namespace *copy_mnt_ns(unsigned long flags, struct mnt_namespace *ns,
- 		q = next_mnt(q, new);
- 		if (!q)
- 			break;
--		while (p->mnt.mnt_root != q->mnt.mnt_root)
--			p = next_mnt(p, old);
--	}
- #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
- 	// Here We are only interested in processes of which original mnt namespace belongs to zygote 
- 		if (likely(is_zygote_pid && (q->mnt_id < DEFAULT_SUS_MNT_ID))) {
-@@ -3380,6 +3377,9 @@ struct mnt_namespace *copy_mnt_ns(unsigned long flags, struct mnt_namespace *ns,
- 			q->mnt_id = ++last_entry_mnt_id;
- 		}
- #endif
-+		while (p->mnt.mnt_root != q->mnt.mnt_root)
-+			p = next_mnt(p, old);
-+	}
+@@ -380,6 +380,7 @@ static struct mount *alloc_vfsmnt(const char *name)
+ 	if (mnt) {
+ 		int err;
  
- 	namespace_unlock();
++		err = mnt_alloc_id(mnt);
+ 		if (err)
+ 			goto out_free_cache;
  
+@@ -1207,10 +1208,6 @@ vfs_kern_mount(struct file_system_type *type, int flags, const char *name, void
+ {
+ 	struct mount *mnt;
+ 	struct dentry *root;
+-#ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
+-	// Make sure mnt->mnt.susfs_mnt_id_backup is initialized every time.
+-	mnt->mnt.susfs_mnt_id_backup = 0;
+-#endif
+ 	
+ 	if (!type)
+ 		return ERR_PTR(-ENODEV);
 -- 
 2.51.2
 
