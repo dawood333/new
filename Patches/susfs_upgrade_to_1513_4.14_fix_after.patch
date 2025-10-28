@@ -1,0 +1,55 @@
+From ecc2e6f97d72db5d7c89784d83489fe3a6825aca Mon Sep 17 00:00:00 2001
+From: MerCuJerry <mercujerry@gmail.com>
+Date: Tue, 28 Oct 2025 20:32:07 +0800
+Subject: [PATCH] patch: fix patch
+
+---
+ fs/namespace.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/fs/namespace.c b/fs/namespace.c
+index b77e88294..60be65005 100644
+--- a/fs/namespace.c
++++ b/fs/namespace.c
+@@ -3345,13 +3345,13 @@ struct mnt_namespace *copy_mnt_ns(unsigned long flags, struct mnt_namespace *ns,
+ 	 */
+ 	p = old;
+ 	q = new;
+-	while (p) {
+ #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
+-	if (likely(is_zygote_pid)) {
+-		last_entry_mnt_id = new->mnt_id;
+-		q->mnt.susfs_mnt_id_backup = new->mnt_id;
+-	}
++    if (likely(is_zygote_pid)) {
++        last_entry_mnt_id = new->mnt_id;
++        q->mnt.susfs_mnt_id_backup = new->mnt_id;
++    }
+ #endif
++	while (p) {
+ 		q->mnt_ns = new_ns;
+ 		new_ns->mounts++;
+ 		if (new_fs) {
+@@ -3368,9 +3368,6 @@ struct mnt_namespace *copy_mnt_ns(unsigned long flags, struct mnt_namespace *ns,
+ 		q = next_mnt(q, new);
+ 		if (!q)
+ 			break;
+-		while (p->mnt.mnt_root != q->mnt.mnt_root)
+-			p = next_mnt(p, old);
+-	}
+ #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
+ 	// Here We are only interested in processes of which original mnt namespace belongs to zygote 
+ 		if (likely(is_zygote_pid && (q->mnt_id < DEFAULT_SUS_MNT_ID))) {
+@@ -3380,6 +3377,9 @@ struct mnt_namespace *copy_mnt_ns(unsigned long flags, struct mnt_namespace *ns,
+ 			q->mnt_id = ++last_entry_mnt_id;
+ 		}
+ #endif
++		while (p->mnt.mnt_root != q->mnt.mnt_root)
++			p = next_mnt(p, old);
++	}
+ 
+ 	namespace_unlock();
+ 
+-- 
+2.51.2
+
