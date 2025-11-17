@@ -1,0 +1,45 @@
+From 10948888e383f33be3d1d6fdf9213bad18f922b5 Mon Sep 17 00:00:00 2001
+From: MerCuJerry <mercujerry@gmail.com>
+Date: Mon, 17 Nov 2025 12:40:13 +0800
+Subject: [PATCH] seccomp and  err
+
+---
+ include/linux/seccomp.h | 2 ++
+ include/linux/susfs.h   | 1 +
+ 2 files changed, 3 insertions(+)
+
+diff --git a/include/linux/seccomp.h b/include/linux/seccomp.h
+index a9d5c52de..4adb3b100 100644
+--- a/include/linux/seccomp.h
++++ b/include/linux/seccomp.h
+@@ -11,6 +11,7 @@
+ #ifdef CONFIG_SECCOMP
+ 
+ #include <linux/thread_info.h>
++#include <linux/atomic.h>
+ #include <asm/seccomp.h>
+ 
+ struct seccomp_filter;
+@@ -27,6 +28,7 @@ struct seccomp_filter;
+  */
+ struct seccomp {
+ 	int mode;
++	atomic_t filter_count;
+ 	struct seccomp_filter *filter;
+ };
+ 
+diff --git a/include/linux/susfs.h b/include/linux/susfs.h
+index 74b15cdc1..a1f94892b 100644
+--- a/include/linux/susfs.h
++++ b/include/linux/susfs.h
+@@ -59,6 +59,7 @@ struct st_sdcard_path {
+ struct st_susfs_sus_mount {
+ 	char                    target_pathname[SUSFS_MAX_LEN_PATHNAME];
+ 	unsigned long           target_dev;
++	int					 	err;
+ };
+ 
+ struct st_susfs_sus_mount_list {
+-- 
+2.51.2
+
