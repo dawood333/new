@@ -104,11 +104,11 @@ jobs:
           patch -p1 < $GITHUB_WORKSPACE/susfs_patch/Patches/Patch/susfs_patch_to_4.14.patch || true
           patch -p1 < $GITHUB_WORKSPACE/Patches/susfs_patch_taskmmu.patch
           if [ "${{ inputs.SOURCECODE_BRANCH }}" = "T" ]; then
-            patch -p1 < $GITHUB_WORKSPACE/susfs_patch/Patches/Patch/susfs_patch_base.patch
-            patch -p1 < $GITHUB_WORKSPACE/susfs_patch/Patches/Patch/susfs_patch_fdinfo.patch
-            patch -p1 < $GITHUB_WORKSPACE/susfs_patch/Patches/Patch/susfs_patch_readdir.patch
+            patch -p1 < $GITHUB_WORKSPACE/Patches/susfs_patch_base.patch
+            patch -p1 < $GITHUB_WORKSPACE/Patches/susfs_patch_fdinfo.patch
+            patch -p1 < $GITHUB_WORKSPACE/Patches/susfs_patch_readdir.patch
           elif [ "${{ inputs.SOURCECODE_BRANCH }}" = "U-dev" ]; then
-            patch -p1 < $GITHUB_WORKSPACE/susfs_patch/Patches/Patch/susfs_patch_newuname.patch
+            patch -p1 < $GITHUB_WORKSPACE/Patches/susfs_patch_newuname.patch
           fi
 
       - name: Copy defconfig
