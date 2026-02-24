@@ -88,9 +88,9 @@ jobs:
       - name: Get susfs patch
         uses: actions/checkout@v5
         with:
-          repository: JackA1ltman/NonGKI_Kernel_Build_2nd
+          repository: dawood333/NonGKI_Kernel_Build_2nd
           sparse-checkout: Patches/Patch
-          ref: mainline
+          ref: d
           path: susfs_patch
 
       - name: Patch Kernel
