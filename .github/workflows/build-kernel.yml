@@ -90,7 +90,7 @@ jobs:
         with:
           repository: dawood333/NonGKI_Kernel_Build_2nd
           sparse-checkout: Patches/Patch
-          ref: mainline
+          ref: d
           path: susfs_patch
 
       - name: Patch Kernel
