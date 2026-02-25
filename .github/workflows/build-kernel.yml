@@ -11,7 +11,7 @@ on:
       SOURCECODE_BRANCH:
         description: '源码分支名称或修订版'
         required: true
-        default: 'lin23.1'
+        default: 'T'
       SUKISU_BRANCH:
         description: 'SukiSU 分支名称或修订版'
         required: true
@@ -56,7 +56,7 @@ jobs:
       - name: Get Kernel Source Code
         uses: actions/checkout@v5
         with:
-          repository: dawood333/Dody
+          repository: MerCuJerry/android_kernel_aresin
           ref: ${{ inputs.SOURCECODE_BRANCH }}
           path: kernel
       
@@ -90,7 +90,7 @@ jobs:
         with:
           repository: dawood333/NonGKI_Kernel_Build_2nd
           sparse-checkout: Patches/Patch
-          ref: mainline
+          ref: d
           path: susfs_patch
 
       - name: Patch Kernel
