@@ -11,7 +11,7 @@ on:
       SOURCECODE_BRANCH:
         description: '源码分支名称或修订版'
         required: true
-        default: 'T'
+        default: 'U-dev'
       SUKISU_BRANCH:
         description: 'SukiSU 分支名称或修订版'
         required: true
@@ -90,7 +90,7 @@ jobs:
         with:
           repository: dawood333/NonGKI_Kernel_Build_2nd
           sparse-checkout: Patches/Patch
-          ref: mainline
+          ref: c
           path: susfs_patch
 
       - name: Patch Kernel
