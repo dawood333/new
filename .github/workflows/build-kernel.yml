@@ -63,8 +63,8 @@ jobs:
       - name: Setup Cross-compile toolchain
         run: |
           mkdir -p toolchain
-          wget -q https://github.com/ZyCromerZ/Clang/releases/download/20.0.0git-20241227-release/Clang-20.0.0git-20241227.tar.gz
-          tar -C toolchain/ -zxvf Clang-20.0.0git-20241227.tar.gz
+          wget -q https://github.com/ZyCromerZ/Clang/releases/download/16.0.6-20240430-release/Clang-16.0.6-20240430.tar.gz
+          tar -C toolchain/ -zxvf Clang-16.0.6-20240430.tar.gz
           rm Clang-20.0.0git-20241227.tar.gz
       
       - name: Set up SukiSU
