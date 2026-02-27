@@ -67,35 +67,7 @@ jobs:
           7za x llvm22.0.0-binutils2.44_amd64-kernel-arm_static-20251116.7z
           rm llvm22.0.0-binutils2.44_amd64-kernel-arm_static-20251116.7z
       
-      - name: Set up SukiSU
-        working-directory: kernel
-        run: |
-          echo DATE=$(date +%F) >> $GITHUB_ENV
-          export BRANCH=${{ inputs.SUKISU_BRANCH }}
-          curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s $BRANCH
-          cd ./KernelSU
-          export KSU_VERSION=$(expr $(/usr/bin/git rev-list --count main) "+" 40000 "-" 2815)
-          echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
-          sed -i "s/DKSU_VERSION=12800/DKSU_VERSION=${KSU_VERSION}/" kernel/Makefile
-      - name: Get SukiSU Patches
-        uses: actions/checkout@v5
-        with:
-          repository: SukiSU-Ultra/SukiSU_patch
-          path: sukisu_patch
-
-      - name: Get susfs patch
-        uses: actions/checkout@v5
-        with:
-          repository: dawood333/NonGKI_Kernel_Build_2nd
-          sparse-checkout: Patches/Patch
-          ref: mainline
-          path: susfs_patch
-
-      - name: Patch Kernel
-        working-directory: kernel
-        run: |
-          patch -p1 < $GITHUB_WORKSPACE/Patches/susfs-syscall-hooks.patch
-
+    
       - name: Copy defconfig
         run: |
           if [ "${{ inputs.enable_feature_kpm }}" = "true" ]; then
@@ -116,14 +88,6 @@ jobs:
           export PATH=/usr/lib/ccache:$GITHUB_WORKSPACE/toolchain/bin:$PATH
           make -j$(nproc --all) ${args} ares_user_defconfig all
       
-      - name: Apply KernelPatch for KPM
-        if: ${{ inputs.enable_feature_kpm }}
-        working-directory: kernel/out/arch/arm64/boot
-        run: |
-          cp $GITHUB_WORKSPACE/sukisu_patch/kpm/patch_linux .
-          chmod +x patch_linux
-          ./patch_linux
-          mv oImage Image
       - name: Pack Kernel using Magiskboot
         working-directory: Magiskboot
         run: |
