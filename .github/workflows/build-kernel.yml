@@ -50,7 +50,6 @@ jobs:
           key: ccache-${{ runner.os }}-${{ github.ref }}
           restore-keys: |
             ccache-${{ runner.os }}-
-
       - uses: actions/checkout@v5
 
       - name: Get Kernel Source Code
@@ -63,21 +62,21 @@ jobs:
       - name: Setup Cross-compile toolchain
         run: |
           mkdir -p toolchain
-          wget -q https://github.com/ZyCromerZ/Clang/releases/download/16.0.6-20240430-release/Clang-16.0.6-20240430.tar.gz
-          tar -C toolchain/ -zxvf Clang-16.0.6-20240430.tar.gz
-          rm Clang-16.0.6-20240430.tar.gz
+          cd toolchain
+          wget -q https://github.com/Mandi-Sa/clang/releases/download/amd64-kernel-arm_static-22/llvm22.0.0-binutils2.44_amd64-kernel-arm_static-20251116.7z
+          7za x llvm22.0.0-binutils2.44_amd64-kernel-arm_static-20251116.7z
+          rm llvm22.0.0-binutils2.44_amd64-kernel-arm_static-20251116.7z
       
       - name: Set up SukiSU
         working-directory: kernel
         run: |
           echo DATE=$(date +%F) >> $GITHUB_ENV
           export BRANCH=${{ inputs.SUKISU_BRANCH }}
-          curl -LSs "https://raw.githubusercontent.com/dawood333/SukiSU-Ultra/a/kernel/setup.sh" | bash -s $BRANCH
+          curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s $BRANCH
           cd ./KernelSU
           export KSU_VERSION=$(expr $(/usr/bin/git rev-list --count main) "+" 40000 "-" 2815)
           echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
           sed -i "s/DKSU_VERSION=12800/DKSU_VERSION=${KSU_VERSION}/" kernel/Makefile
-
       - name: Get SukiSU Patches
         uses: actions/checkout@v5
         with:
@@ -89,27 +88,13 @@ jobs:
         with:
           repository: dawood333/NonGKI_Kernel_Build_2nd
           sparse-checkout: Patches/Patch
-          ref: c
+          ref: mainline
           path: susfs_patch
 
       - name: Patch Kernel
         working-directory: kernel
         run: |
           patch -p1 < $GITHUB_WORKSPACE/Patches/susfs-syscall-hooks.patch
-
-      - name: Apply KernelPatch for SUSFS
-        working-directory: kernel
-        run: |
-          patch -p1 < $GITHUB_WORKSPACE/susfs_patch/Patches/Patch/susfs_patch_to_4.14.patch || true
-          patch -p1 < $GITHUB_WORKSPACE/Patches/susfs_patch_taskmmu.patch
-          patch -p1 < $GITHUB_WORKSPACE/Patches/fix_error.patch
-          if [ "${{ inputs.SOURCECODE_BRANCH }}" = "T" ]; then
-            patch -p1 < $GITHUB_WORKSPACE/Patches/susfs_patch_base.patch
-            patch -p1 < $GITHUB_WORKSPACE/Patches/susfs_patch_fdinfo.patch
-            patch -p1 < $GITHUB_WORKSPACE/Patches/susfs_patch_readdir.patch
-          elif [ "${{ inputs.SOURCECODE_BRANCH }}" = "U-dev" ]; then
-            patch -p1 < $GITHUB_WORKSPACE/Patches/susfs_patch_newuname.patch
-          fi
 
       - name: Copy defconfig
         run: |
@@ -123,12 +108,9 @@ jobs:
         working-directory: kernel
         env:
           args: |+
-            LLVM=1 ARCH=arm64
-            CROSS_COMPILE=aarch64-linux-gnu-
-            CROSS_COMPILE_ARM32=arm-linux-gnueabi-
-            CROSS_COMPILE_COMPAT=arm-linux-gnueabi-
-            CC=clang LD=ld.lld HOSTLD=ld.lld
-            O=out KCFLAGS+=-O2 KCFLAGS_PERF+=-O3
+            LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu-
+            CROSS_COMPILE_ARM32=arm-linux-gnueabi- CROSS_COMPILE_COMPAT=arm-linux-gnueabi-
+            CC=clang LD=ld.lld HOSTLD=ld.lld O=out KCFLAGS+=-O2 KCFLAGS_PERF+=-O3
         run: |
           export KBUILD_BUILD_TIMESTAMP=$(date)
           export PATH=/usr/lib/ccache:$GITHUB_WORKSPACE/toolchain/bin:$PATH
@@ -142,7 +124,6 @@ jobs:
           chmod +x patch_linux
           ./patch_linux
           mv oImage Image
-
       - name: Pack Kernel using Magiskboot
         working-directory: Magiskboot
         run: |
@@ -153,7 +134,6 @@ jobs:
             ./magiskboot repack boot.img boot_SukiSU_${{ env.KSUVER }}.img
             cp $GITHUB_WORKSPACE/kernel/out/arch/arm64/boot/dtb ./dtb
             ./magiskboot repack boot.img boot_SukiSU_${{ env.KSUVER }}_new_dtb.img
-
       - name: Upload repacked boot image
         uses: actions/upload-artifact@v4
         with:
