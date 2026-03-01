@@ -11,7 +11,7 @@ on:
       SOURCECODE_BRANCH:
         description: '源码分支名称或修订版'
         required: true
-        default: 'U-dev'
+        default: 'lin23.1'
       SUKISU_BRANCH:
         description: 'SukiSU 分支名称或修订版'
         required: true
@@ -55,7 +55,7 @@ jobs:
       - name: Get Kernel Source Code
         uses: actions/checkout@v5
         with:
-          repository: MerCuJerry/android_kernel_aresin
+          repository: dawood333/Dody
           ref: ${{ inputs.SOURCECODE_BRANCH }}
           path: kernel
       
